@@ -1,19 +1,49 @@
 {
   "manifest_version": 3,
-  "name": "Tab Notes",
+  "name": "ClipNotes — Smart Copy & Paste",
   "version": "1.0",
-  "description": "A simple extension to save and manage notes for browser tabs.",
+  "description": "Automatically saves copied text and provides quick access to your clipboard history.",
   "permissions": [
-    "tabs",
-    "storage"
+    "storage",
+    "contextMenus",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
   ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      }
+    },
+    "paste-last-clip": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+V",
+        "mac": "Command+Shift+V"
+      },
+      "description": "Paste the last saved clip"
+    }
+  },
   "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   }
 }

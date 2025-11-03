@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tab Notes</title>
-  <link rel="stylesheet" type="text/css" href="styles.css">
+  <title>ClipNotes</title>
+  <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 <body>
-  <h1>Tab Notes</h1>
-  <textarea id="note-input" placeholder="Add a note..."></textarea>
-  <button id="save-button">Save Current Tab</button>
-  <ul id="notes-list"></ul>
+  <div class="container">
+    <h1>ClipNotes</h1>
+    <input type="text" id="search-bar" placeholder="Search clips...">
+    <div id="clips-container"></div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
