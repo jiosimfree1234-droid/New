@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Notes",
+  "version": "1.0",
+  "description": "A simple extension to save and manage notes for browser tabs.",
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}
