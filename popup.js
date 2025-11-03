@@ -1,60 +1,78 @@
+// popup.js
+
 document.addEventListener('DOMContentLoaded', () => {
-  const saveButton = document.getElementById('save-button');
-  const noteInput = document.getElementById('note-input');
-  const notesList = document.getElementById('notes-list');
+  const clipsContainer = document.getElementById('clips-container');
+  const searchBar = document.getElementById('search-bar');
 
-  const loadNotes = () => {
-    chrome.storage.sync.get({ notes: [] }, (data) => {
-      notesList.innerHTML = '';
-      data.notes.forEach((note) => {
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `
-          <strong>${note.title}</strong>
-          <p>${note.note}</p>
-          <a href="${note.url}" target="_blank">${note.url}</a>
-          <button class="delete-button" data-id="${note.id}">Delete</button>
-        `;
-        notesList.appendChild(listItem);
-      });
-    });
-  };
+  // Function to render clips
+  const renderClips = (clips) => {
+    clipsContainer.innerHTML = '';
+    const limitedClips = clips.slice(0, 10); // Show only the 10 most recent clips
+    limitedClips.forEach((clipText, index) => {
+      const clipElement = document.createElement('div');
+      clipElement.className = 'clip';
 
-  const deleteNote = (id) => {
-    chrome.storage.sync.get({ notes: [] }, (data) => {
-      const notes = data.notes.filter((note) => note.id !== id);
-      chrome.storage.sync.set({ notes: notes }, () => {
-        loadNotes();
-      });
-    });
-  };
+      const textElement = document.createElement('span');
+      textElement.className = 'clip-text';
+      textElement.textContent = clipText;
+      clipElement.appendChild(textElement);
 
-  saveButton.addEventListener('click', () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tab = tabs[0];
-      const note = {
-        id: new Date().getTime(),
-        url: tab.url,
-        title: tab.title,
-        note: noteInput.value,
-      };
+      const actionsElement = document.createElement('div');
+      actionsElement.className = 'clip-actions';
 
-      chrome.storage.sync.get({ notes: [] }, (data) => {
-        const notes = data.notes;
-        notes.push(note);
-        chrome.storage.sync.set({ notes: notes }, () => {
-          noteInput.value = '';
-          loadNotes();
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy';
+      copyButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(clipText).then(() => {
+          // Maybe show a success message
+          copyButton.textContent = 'Copied!';
+          setTimeout(() => {
+            copyButton.textContent = 'Copy';
+          }, 1000);
         });
       });
+      actionsElement.appendChild(copyButton);
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.className = 'delete-btn';
+      deleteButton.addEventListener('click', () => {
+        deleteClip(index);
+      });
+      actionsElement.appendChild(deleteButton);
+
+      clipElement.appendChild(actionsElement);
+      clipsContainer.appendChild(clipElement);
+    });
+  };
+
+  // Function to load clips from storage
+  const loadClips = () => {
+    chrome.storage.local.get({ clips: [] }, (result) => {
+      renderClips(result.clips);
+    });
+  };
+
+  // Function to delete a clip
+  const deleteClip = (indexToDelete) => {
+    chrome.storage.local.get({ clips: [] }, (result) => {
+      let clips = result.clips;
+      clips.splice(indexToDelete, 1);
+      chrome.storage.local.set({ clips }, () => {
+        loadClips();
+      });
+    });
+  };
+
+  // Search functionality
+  searchBar.addEventListener('input', (e) => {
+    const searchText = e.target.value.toLowerCase();
+    chrome.storage.local.get({ clips: [] }, (result) => {
+      const filteredClips = result.clips.filter(clip => clip.toLowerCase().includes(searchText));
+      renderClips(filteredClips);
     });
   });
 
-  notesList.addEventListener('click', (e) => {
-    if (e.target.classList.contains('delete-button')) {
-      const noteId = Number(e.target.getAttribute('data-id'));
-      deleteNote(noteId);
-    }
-  });
-
-  loadNotes();
+  // Initial load of clips
+  loadClips();
 });
